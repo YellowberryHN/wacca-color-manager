@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<title>WACCA Color Manager</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			fetch("https://yellowberryhn.github.io/wacca-color-manager/book.js")
+			.then(response => {
+				response.text()
+				.then(result => {
+					document.getElementById("book").href = "javascript:"+result;
+				});
+			})
+		</script>
+		<h1>WACCA Color Manager</h1>
+		<p>Drag this link to your bookmarks bar: <a id="book" onclick="return false;">WACCA Color Manager</a></p>
+	</body>
+</html>
