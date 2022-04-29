@@ -12,6 +12,9 @@ export function main(){
 
 	window.loadPreset = function(preset) {
 		console.log("preset code given: " + preset);
+		var b64 = preset.replace(/[\+\/\=]/g, a => ({'+':'.','/':',','=':'$'})[a]); 
+		var raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+		console.log(raw);
 	}
 
 	window.generatePreset = function() {
