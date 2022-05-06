@@ -6,6 +6,9 @@ export function main(){
 	// length
 	const UNSET = 0;
 
+	window._preset = null;
+	window._presetCode = "";
+
 	window.presetPrompt = function() {
 		loadPreset(prompt('プリセットコードを入力して下さい:\nPlease enter a preset code:'));
 	}
@@ -76,7 +79,9 @@ export function main(){
 				  "body": `optionValue=${preset[prop]}`,
 				  "method": "POST",
 				  "mode": "cors",
-				  "credentials": "include"
+				  "credentials": "include",
+				  "cookie": document.cookie,
+				  "redirect": error
 				});
 			}
 
@@ -86,7 +91,7 @@ export function main(){
 		console.log(raw);
 	}
 
-	window.grabColors = function() {
+	window.grabColors = async function() {
 		preset = {
 			my: 0,
 			touchNote: 0,
@@ -98,29 +103,50 @@ export function main(){
 			holdNote: 0
 		};
 
+		cookie = "";
+
 		for (const prop in preset) {
+
+			var selectedColor = 0;
 			
-			fetch(`https://wacca.marv-games.jp/web/option/${prop}Color`, {
+			await fetch(`https://wacca.marv-games.jp/web/option/${prop}Color`, {
 			  "referrer": `https://wacca.marv-games.jp/web/option/designSetting`,
 			  "method": "GET",
 			  "mode": "cors",
-			  "credentials": "include"
-			});
+			  "credentials": "include",
+			  "cookie": document.cookie,
+			  "redirect": "error"
+			}).then(response => response.text())
+			  .then(text => {
+			    const parser = new DOMParser();
+			    const htmlDocument = parser.parseFromString(text, "text/html");
+			    if (prop == "my") {
+			    	// NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE 
+			    	selectedColor = htmlDocument.documentElement.querySelector("div.current-mycolor__icon img").src.split('/').pop().split('.')[0];
+			    } else {
+			    	selectedColor = htmlDocument.documentElement.querySelector('.option_image_select_content.selected #option_value').value;
+			    }
+			    console.log("got "+selectedColor);
 
-			// fix this, don't be a clown.
-			const selectedColor = document.querySelector('.option_image_select_content.selected #option_value').value;
+			    if(selectedColor == 0) throw new Error("");
 
-			console.log("got "+selectedColor);
+				preset[prop] = selectedColor;
 
-			preset[prop] = selectedColor;
+				console.log(`${prop}: ${preset[prop]}`);
+			  });
 
-			console.log(`${prop}: ${preset[prop]}`);
 		}
 
 		return preset;
 	}
 
+	// this is stupid
+	window._generating = false;
+
 	window.generatePreset = function(preset) {
+		if(window._preset != null || _generating) {
+			return;
+		}
 		alert("not implemented.");
 	}
 
